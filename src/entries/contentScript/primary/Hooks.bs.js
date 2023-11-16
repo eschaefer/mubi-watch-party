@@ -26,48 +26,104 @@ var initialState = {
 
 function storageReducer(state, action) {
   if (typeof action === "number") {
+    Browser$ReScriptLogger.debug({
+          rootModule: "Hooks",
+          subModulePath: /* [] */0,
+          value: "storageReducer",
+          fullPath: "Hooks.storageReducer"
+        }, "Reset");
     return initialState;
   }
   switch (action.TAG | 0) {
     case /* LocalHostTime */0 :
+        var timestamp = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "storageReducer",
+              fullPath: "Hooks.storageReducer"
+            }, "LocalHostTime with payload", [
+              "timestamp",
+              timestamp
+            ]);
         return {
                 localHostId: state.localHostId,
                 remoteHostId: state.remoteHostId,
-                localHostTime: action._0,
+                localHostTime: timestamp,
                 connectedPeers: state.connectedPeers,
                 playerState: state.playerState
               };
     case /* SetLocalHostId */1 :
+        var id = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "storageReducer",
+              fullPath: "Hooks.storageReducer"
+            }, "SetLocalHostId with payload", [
+              "id",
+              id
+            ]);
         return {
-                localHostId: action._0,
+                localHostId: id,
                 remoteHostId: state.remoteHostId,
                 localHostTime: state.localHostTime,
                 connectedPeers: state.connectedPeers,
                 playerState: state.playerState
               };
     case /* SetRemoteHostId */2 :
+        var id$1 = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "storageReducer",
+              fullPath: "Hooks.storageReducer"
+            }, "SetRemoteHostId with payload", [
+              "id",
+              id$1
+            ]);
         return {
                 localHostId: state.localHostId,
-                remoteHostId: action._0,
+                remoteHostId: id$1,
                 localHostTime: state.localHostTime,
                 connectedPeers: state.connectedPeers,
                 playerState: state.playerState
               };
     case /* SetConnectedPeers */3 :
+        var count = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "storageReducer",
+              fullPath: "Hooks.storageReducer"
+            }, "SetConnectedPeers with payload", [
+              "count",
+              count
+            ]);
         return {
                 localHostId: state.localHostId,
                 remoteHostId: state.remoteHostId,
                 localHostTime: state.localHostTime,
-                connectedPeers: action._0,
+                connectedPeers: count,
                 playerState: state.playerState
               };
     case /* SetPlayerState */4 :
+        var playerState = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "storageReducer",
+              fullPath: "Hooks.storageReducer"
+            }, "SetPlayerState with payload", [
+              "playerState",
+              playerState
+            ]);
         return {
                 localHostId: state.localHostId,
                 remoteHostId: state.remoteHostId,
                 localHostTime: state.localHostTime,
                 connectedPeers: state.connectedPeers,
-                playerState: action._0
+                playerState: playerState
               };
     
   }
@@ -84,6 +140,15 @@ function useStorage(param) {
                   "remoteHostId",
                   "connectedPeers",
                   "playerState"
+                ]);
+            Browser$ReScriptLogger.debug1({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "useStorage",
+                  fullPath: "Hooks.useStorage"
+                }, "Storage loaded", [
+                  "response",
+                  res
                 ]);
             var res$1 = Json$JsonCombinators.decode(res, Browser.$$Storage.Decode.initialStorageItem);
             var decodedRes;
@@ -152,7 +217,31 @@ function useStorage(param) {
           var handleChange = function (changes, param) {
             var changes$1 = Json$JsonCombinators.decode(changes, Browser.$$Storage.Decode.storageChange);
             var decodedChanges;
-            decodedChanges = changes$1.TAG === /* Ok */0 ? changes$1._0 : Pervasives.failwith(changes$1._0);
+            if (changes$1.TAG === /* Ok */0) {
+              var changes$2 = changes$1._0;
+              Browser$ReScriptLogger.debug1({
+                    rootModule: "Hooks",
+                    subModulePath: /* [] */0,
+                    value: "useStorage",
+                    fullPath: "Hooks.useStorage"
+                  }, "Ok with payload", [
+                    "changes",
+                    changes$2
+                  ]);
+              decodedChanges = changes$2;
+            } else {
+              var err = changes$1._0;
+              Browser$ReScriptLogger.debug1({
+                    rootModule: "Hooks",
+                    subModulePath: /* [] */0,
+                    value: "useStorage",
+                    fullPath: "Hooks.useStorage"
+                  }, "Error with payload", [
+                    "err",
+                    err
+                  ]);
+              decodedChanges = Pervasives.failwith(err);
+            }
             var clocalHostTime = decodedChanges.changedLocalHostTime;
             if (clocalHostTime !== undefined) {
               var timestamp = Belt_Float.fromString(clocalHostTime.newValue);
@@ -289,6 +378,12 @@ function useVideo(param) {
                             return Caml_option.some(el$1);
                           }));
             } else {
+              Browser$ReScriptLogger.debug({
+                    rootModule: "Hooks",
+                    subModulePath: /* [] */0,
+                    value: "useVideo",
+                    fullPath: "Hooks.useVideo"
+                  }, "Video element probably an ad");
               return Curry._1(setVideoEl, (function (param) {
                             
                           }));
@@ -320,33 +415,96 @@ function usePeer(remoteHostId, videoEl) {
   var setCurrentFilm = match$2[1];
   var handlePeerData = React.useCallback((function (data) {
           var v = Utils.getVideoEl(undefined);
-          if (v === undefined) {
+          if (v !== undefined) {
+            var el = Caml_option.valFromOption(v);
+            Browser$ReScriptLogger.debug1({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "usePeer",
+                  fullPath: "Hooks.usePeer"
+                }, "Some with payload", [
+                  "el",
+                  el
+                ]);
+            switch (data.TAG | 0) {
+              case /* Film */0 :
+                  var film = data._0;
+                  Browser$ReScriptLogger.debug1({
+                        rootModule: "Hooks",
+                        subModulePath: /* [] */0,
+                        value: "usePeer",
+                        fullPath: "Hooks.usePeer"
+                      }, "Film with payload", [
+                        "film",
+                        film
+                      ]);
+                  return Curry._1(setCurrentFilm, (function (param) {
+                                return film;
+                              }));
+              case /* Play */1 :
+                  var timestamp = data._0;
+                  Browser$ReScriptLogger.debug1({
+                        rootModule: "Hooks",
+                        subModulePath: /* [] */0,
+                        value: "usePeer",
+                        fullPath: "Hooks.usePeer"
+                      }, "Play with payload", [
+                        "timestamp",
+                        timestamp
+                      ]);
+                  el.currentTime = timestamp;
+                  el.play();
+                  return ;
+              case /* Pause */2 :
+                  var timestamp$1 = data._0;
+                  Browser$ReScriptLogger.debug1({
+                        rootModule: "Hooks",
+                        subModulePath: /* [] */0,
+                        value: "usePeer",
+                        fullPath: "Hooks.usePeer"
+                      }, "Pause with payload", [
+                        "timestamp",
+                        timestamp$1
+                      ]);
+                  el.pause();
+                  el.currentTime = timestamp$1;
+                  return ;
+              case /* TimeUpdate */3 :
+                  Browser$ReScriptLogger.debug1({
+                        rootModule: "Hooks",
+                        subModulePath: /* [] */0,
+                        value: "usePeer",
+                        fullPath: "Hooks.usePeer"
+                      }, "TimeUpdate with payload", [
+                        "timestamp",
+                        data._0
+                      ]);
+                  return ;
+              
+            }
+          } else {
+            Browser$ReScriptLogger.debug({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "usePeer",
+                  fullPath: "Hooks.usePeer"
+                }, "None");
             return Pervasives.failwith("Video element went missing");
-          }
-          var el = Caml_option.valFromOption(v);
-          switch (data.TAG | 0) {
-            case /* Film */0 :
-                var film = data._0;
-                return Curry._1(setCurrentFilm, (function (param) {
-                              return film;
-                            }));
-            case /* Play */1 :
-                el.currentTime = data._0;
-                el.play();
-                return ;
-            case /* Pause */2 :
-                el.pause();
-                el.currentTime = data._0;
-                return ;
-            case /* TimeUpdate */3 :
-                return ;
-            
           }
         }), []);
   var emitToPeers = React.useCallback((function (action) {
           switch (action.TAG | 0) {
             case /* Film */0 :
                 var film = action._0;
+                Browser$ReScriptLogger.debug1({
+                      rootModule: "Hooks",
+                      subModulePath: /* [] */0,
+                      value: "usePeer",
+                      fullPath: "Hooks.usePeer"
+                    }, "Film with payload", [
+                      "film",
+                      film
+                    ]);
                 return Belt_List.forEach(connections, (function (connection) {
                               connection.send({
                                     TAG: /* Film */0,
@@ -355,6 +513,15 @@ function usePeer(remoteHostId, videoEl) {
                             }));
             case /* Play */1 :
                 var timestamp = action._0;
+                Browser$ReScriptLogger.debug1({
+                      rootModule: "Hooks",
+                      subModulePath: /* [] */0,
+                      value: "usePeer",
+                      fullPath: "Hooks.usePeer"
+                    }, "Play with payload", [
+                      "timestamp",
+                      timestamp
+                    ]);
                 return Belt_List.forEach(connections, (function (connection) {
                               connection.send({
                                     TAG: /* Play */1,
@@ -363,6 +530,15 @@ function usePeer(remoteHostId, videoEl) {
                             }));
             case /* Pause */2 :
                 var timestamp$1 = action._0;
+                Browser$ReScriptLogger.debug1({
+                      rootModule: "Hooks",
+                      subModulePath: /* [] */0,
+                      value: "usePeer",
+                      fullPath: "Hooks.usePeer"
+                    }, "Pause with payload", [
+                      "timestamp",
+                      timestamp$1
+                    ]);
                 return Belt_List.forEach(connections, (function (connection) {
                               connection.send({
                                     TAG: /* Pause */2,
@@ -371,6 +547,15 @@ function usePeer(remoteHostId, videoEl) {
                             }));
             case /* TimeUpdate */3 :
                 var timestamp$2 = action._0;
+                Browser$ReScriptLogger.debug1({
+                      rootModule: "Hooks",
+                      subModulePath: /* [] */0,
+                      value: "usePeer",
+                      fullPath: "Hooks.usePeer"
+                    }, "TimeUpdate with payload", [
+                      "timestamp",
+                      timestamp$2
+                    ]);
                 return Belt_List.forEach(connections, (function (connection) {
                               connection.send({
                                     TAG: /* TimeUpdate */3,
@@ -383,6 +568,12 @@ function usePeer(remoteHostId, videoEl) {
   React.useEffect((function () {
           var handlePlay = function ($$event) {
             var currentTime = $$event.target.currentTime;
+            Browser$ReScriptLogger.debug({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "usePeer",
+                  fullPath: "Hooks.usePeer"
+                }, "Play movie");
             Curry._1(emitToPeers, {
                   TAG: /* Play */1,
                   _0: currentTime
@@ -390,6 +581,12 @@ function usePeer(remoteHostId, videoEl) {
           };
           var handlePause = function ($$event) {
             var currentTime = $$event.target.currentTime;
+            Browser$ReScriptLogger.debug({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "usePeer",
+                  fullPath: "Hooks.usePeer"
+                }, "Pause movie");
             Curry._1(emitToPeers, {
                   TAG: /* Pause */2,
                   _0: currentTime
@@ -397,6 +594,12 @@ function usePeer(remoteHostId, videoEl) {
           };
           var handleTimeUpdate = function ($$event) {
             var currentTime = $$event.target.currentTime;
+            Browser$ReScriptLogger.debug({
+                  rootModule: "Hooks",
+                  subModulePath: /* [] */0,
+                  value: "usePeer",
+                  fullPath: "Hooks.usePeer"
+                }, "Time update");
             Curry._1(emitToPeers, {
                   TAG: /* TimeUpdate */3,
                   _0: currentTime
@@ -415,11 +618,26 @@ function usePeer(remoteHostId, videoEl) {
       ]);
   React.useEffect((function () {
           peer.current.on("open", (function (id) {
+                  Browser$ReScriptLogger.debug1({
+                        rootModule: "Hooks",
+                        subModulePath: /* [] */0,
+                        value: "usePeer",
+                        fullPath: "Hooks.usePeer"
+                      }, "My peer ID is: ", [
+                        "id",
+                        id
+                      ]);
                   Curry._1(setLocalPeerId, (function (param) {
                           return id;
                         }));
                   peer.current.on("connection", (function (connection) {
                           connection.on("open", (function (param) {
+                                  Browser$ReScriptLogger.debug({
+                                        rootModule: "Hooks",
+                                        subModulePath: /* [] */0,
+                                        value: "usePeer",
+                                        fullPath: "Hooks.usePeer"
+                                      }, "Data connection open");
                                   connection.on("data", handlePeerData);
                                   Curry._1(setConnections, (function (prev) {
                                           return {
@@ -429,6 +647,12 @@ function usePeer(remoteHostId, videoEl) {
                                         }));
                                 }));
                           connection.on("close", (function (param) {
+                                  Browser$ReScriptLogger.debug({
+                                        rootModule: "Hooks",
+                                        subModulePath: /* [] */0,
+                                        value: "usePeer",
+                                        fullPath: "Hooks.usePeer"
+                                      }, "data connection closed");
                                   Curry._1(setConnections, (function (prev) {
                                           return Belt_List.keep(prev, (function (item) {
                                                         return item.peer !== connection.peer;
@@ -453,6 +677,12 @@ function usePeer(remoteHostId, videoEl) {
           if (remoteHostId !== undefined) {
             var peerConnection = peer.current.connect(remoteHostId, undefined);
             peerConnection.on("open", (function (param) {
+                    Browser$ReScriptLogger.debug({
+                          rootModule: "Hooks",
+                          subModulePath: /* [] */0,
+                          value: "usePeer",
+                          fullPath: "Hooks.usePeer"
+                        }, "data connection open");
                     Curry._1(setConnections, (function (prev) {
                             return {
                                     hd: peerConnection,
@@ -461,6 +691,12 @@ function usePeer(remoteHostId, videoEl) {
                           }));
                     peerConnection.on("data", handlePeerData);
                     peerConnection.on("close", (function (param) {
+                            Browser$ReScriptLogger.debug({
+                                  rootModule: "Hooks",
+                                  subModulePath: /* [] */0,
+                                  value: "usePeer",
+                                  fullPath: "Hooks.usePeer"
+                                }, "data connection closed");
                             Curry._1(setConnections, (function (prev) {
                                     return Belt_List.keep(prev, (function (item) {
                                                   return item.peer !== peerConnection.peer;

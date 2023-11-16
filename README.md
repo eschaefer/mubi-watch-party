@@ -2,6 +2,14 @@
 
 A web extension to sync Mubi movies with friends.
 
+## Installation
+
+**Firefox**
+[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mubi-watch-party/)
+
+**Chrome**
+Chrome Web Store _(coming very soon)_
+
 ### Requirements for development
 
 - `node` >= `21`

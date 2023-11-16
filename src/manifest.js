@@ -57,7 +57,7 @@ const ManifestV2 = {
 const ManifestV3 = {
   ...sharedManifest,
   action: browserAction,
-  host_permissions: [mubiPermission],
+  host_permissions: [mubiPermission, '*://*.peerjs.com/*'],
 };
 
 export function getManifest(manifestVersion) {
