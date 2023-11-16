@@ -1,0 +1,43 @@
+{
+  "name": "mubi-watch-party",
+  "displayName": "Mubi Watch Party",
+  "version": "1.0.0",
+  "author": "Eric Schaefer <omg@eric-schaefer.com>",
+  "description": "Watch Mubi with friends",
+  "scripts": {
+    "build": "RES_LOG=off vite build",
+    "watch": "RES_LOG=* vite build --watch --mode development --minify false",
+    "dev": "RES_LOG=* vite",
+    "serve:firefox": "web-ext run --start-url \"about:debugging#/runtime/this-firefox\"  --source-dir ./dist/",
+    "serve:chrome": "web-ext run -t chromium --start-url \"https://mubi.com\" --source-dir ./dist/",
+    "bundle": "web-ext build --overwrite-dest --source-dir ./dist/ --artifacts-dir ./dist/"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@jihchi/vite-plugin-rescript": "^5.3.1",
+    "@samrum/vite-plugin-web-extension": "^5.0.0",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/chrome": "^0.0.249",
+    "@types/webextension-polyfill": "^0.10.6",
+    "@vitejs/plugin-react": "^4.1.1",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "rescript": "^10.1.4",
+    "tailwindcss": "^3.3.5",
+    "vite": "^4.5.0",
+    "web-ext": "^7.8.0"
+  },
+  "dependencies": {
+    "@glennsl/rescript-json-combinators": "^1.2.1",
+    "@rescript/react": "^0.11.0",
+    "element-visible": "^1.0.3",
+    "peerjs": "^1.5.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rescript-logger": "^3.1.0",
+    "rescript-peerjs": "^1.0.0",
+    "rescript-throttle": "^1.0.1",
+    "rescript-webapi": "^0.9.0",
+    "webextension-polyfill": "^0.10.0"
+  }
+}

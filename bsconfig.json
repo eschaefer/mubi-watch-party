@@ -1,0 +1,24 @@
+{
+  "name": "mubi-2",
+  "version": "0.1.0",
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "suffix": ".bs.js",
+  "reason": { "react-jsx": 3 },
+  "bsc-flags": ["-open JsonCombinators"],
+  "bs-dependencies": [
+    "@rescript/react",
+    "rescript-webapi",
+    "@glennsl/rescript-json-combinators",
+    "rescript-peerjs",
+    "rescript-logger",
+    "rescript-throttle"
+  ],
+  "ppx-flags": ["rescript-logger/ppx"]
+}
