@@ -7,7 +7,6 @@ const sharedManifest = {
   content_scripts: [
     {
       js: ['src/entries/contentScript/primary/main.jsx'],
-      // matches: ["*://*/*"],
       matches: [mubiPermission],
     },
   ],
