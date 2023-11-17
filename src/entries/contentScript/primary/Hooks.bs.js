@@ -4,16 +4,11 @@ import * as Curry from "rescript/lib/es6/curry.js";
 import * as Utils from "../../shared/Utils.bs.js";
 import * as React from "react";
 import * as Peerjs from "peerjs";
-import * as Browser from "./Browser.bs.js";
-import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
 import * as Throttle from "rescript-throttle/src/Throttle.bs.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
-import * as Belt_Float from "rescript/lib/es6/belt_Float.js";
 import * as Pervasives from "rescript/lib/es6/pervasives.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as Js_null_undefined from "rescript/lib/es6/js_null_undefined.js";
-import * as Json$JsonCombinators from "@glennsl/rescript-json-combinators/src/Json.bs.js";
-import * as WebextensionPolyfill from "webextension-polyfill";
 import * as Browser$ReScriptLogger from "rescript-logger/src/loggers/Browser.bs.js";
 
 var initialState = {
@@ -131,231 +126,17 @@ function storageReducer(state, action) {
 
 function useStorage(param) {
   var match = React.useReducer(storageReducer, initialState);
-  var dispatch = match[1];
-  React.useEffect((function () {
-          var load = async function (param) {
-            var res = await WebextensionPolyfill.storage.local.get([
-                  "localHostTime",
-                  "localHostId",
-                  "remoteHostId",
-                  "connectedPeers",
-                  "playerState"
-                ]);
-            Browser$ReScriptLogger.debug1({
-                  rootModule: "Hooks",
-                  subModulePath: /* [] */0,
-                  value: "useStorage",
-                  fullPath: "Hooks.useStorage"
-                }, "Storage loaded", [
-                  "response",
-                  res
-                ]);
-            var res$1 = Json$JsonCombinators.decode(res, Browser.$$Storage.Decode.initialStorageItem);
-            var decodedRes;
-            decodedRes = res$1.TAG === /* Ok */0 ? res$1._0 : Pervasives.failwith(res$1._0);
-            var timestamp = decodedRes.localHostTime;
-            if (timestamp !== undefined) {
-              var timestamp$1 = Belt_Float.fromString(timestamp);
-              if (timestamp$1 !== undefined) {
-                Curry._1(dispatch, {
-                      TAG: /* LocalHostTime */0,
-                      _0: timestamp$1
-                    });
-              }
-              
-            }
-            var id = decodedRes.localHostId;
-            if (id !== undefined) {
-              Curry._1(dispatch, {
-                    TAG: /* SetLocalHostId */1,
-                    _0: id
-                  });
-            }
-            var id$1 = decodedRes.remoteHostId;
-            if (id$1 !== undefined) {
-              Curry._1(dispatch, {
-                    TAG: /* SetRemoteHostId */2,
-                    _0: id$1
-                  });
-            }
-            var count = decodedRes.connectedPeers;
-            if (count !== undefined) {
-              var count$1 = Belt_Int.fromString(count);
-              if (count$1 !== undefined) {
-                Curry._1(dispatch, {
-                      TAG: /* SetConnectedPeers */3,
-                      _0: count$1
-                    });
-              }
-              
-            }
-            var playerState = decodedRes.playerState;
-            if (playerState === undefined) {
-              return ;
-            }
-            switch (playerState) {
-              case "paused" :
-                  return Curry._1(dispatch, {
-                              TAG: /* SetPlayerState */4,
-                              _0: /* Paused */1
-                            });
-              case "playing" :
-                  return Curry._1(dispatch, {
-                              TAG: /* SetPlayerState */4,
-                              _0: /* Playing */0
-                            });
-              default:
-                return Curry._1(dispatch, {
-                            TAG: /* SetPlayerState */4,
-                            _0: /* Unknown */2
-                          });
-            }
-          };
-          load(undefined);
-        }), []);
-  React.useEffect((function () {
-          var handleChange = function (changes, param) {
-            var changes$1 = Json$JsonCombinators.decode(changes, Browser.$$Storage.Decode.storageChange);
-            var decodedChanges;
-            if (changes$1.TAG === /* Ok */0) {
-              var changes$2 = changes$1._0;
-              Browser$ReScriptLogger.debug1({
-                    rootModule: "Hooks",
-                    subModulePath: /* [] */0,
-                    value: "useStorage",
-                    fullPath: "Hooks.useStorage"
-                  }, "Ok with payload", [
-                    "changes",
-                    changes$2
-                  ]);
-              decodedChanges = changes$2;
-            } else {
-              var err = changes$1._0;
-              Browser$ReScriptLogger.debug1({
-                    rootModule: "Hooks",
-                    subModulePath: /* [] */0,
-                    value: "useStorage",
-                    fullPath: "Hooks.useStorage"
-                  }, "Error with payload", [
-                    "err",
-                    err
-                  ]);
-              decodedChanges = Pervasives.failwith(err);
-            }
-            var clocalHostTime = decodedChanges.changedLocalHostTime;
-            if (clocalHostTime !== undefined) {
-              var timestamp = Belt_Float.fromString(clocalHostTime.newValue);
-              if (timestamp !== undefined) {
-                Curry._1(dispatch, {
-                      TAG: /* LocalHostTime */0,
-                      _0: timestamp
-                    });
-              } else {
-                Pervasives.failwith("Could not parse timestamp");
-              }
-            }
-            var clocalHostId = decodedChanges.changedLocalHostId;
-            if (clocalHostId !== undefined) {
-              Curry._1(dispatch, {
-                    TAG: /* SetLocalHostId */1,
-                    _0: clocalHostId.newValue
-                  });
-            }
-            var cremoteHostId = decodedChanges.changedRemoteHostId;
-            if (cremoteHostId !== undefined) {
-              Curry._1(dispatch, {
-                    TAG: /* SetRemoteHostId */2,
-                    _0: cremoteHostId.newValue
-                  });
-            }
-            var cconnectedPeers = decodedChanges.changedConnectedPeers;
-            if (cconnectedPeers !== undefined) {
-              var count = Belt_Int.fromString(cconnectedPeers.newValue);
-              if (count !== undefined) {
-                Curry._1(dispatch, {
-                      TAG: /* SetConnectedPeers */3,
-                      _0: count
-                    });
-              } else {
-                Pervasives.failwith("Could not parse connected peers");
-              }
-            }
-            var cplayerState = decodedChanges.changedPlayerState;
-            if (cplayerState === undefined) {
-              return ;
-            }
-            var match = cplayerState.newValue;
-            switch (match) {
-              case "paused" :
-                  return Curry._1(dispatch, {
-                              TAG: /* SetPlayerState */4,
-                              _0: /* Paused */1
-                            });
-              case "playing" :
-                  return Curry._1(dispatch, {
-                              TAG: /* SetPlayerState */4,
-                              _0: /* Playing */0
-                            });
-              default:
-                return Curry._1(dispatch, {
-                            TAG: /* SetPlayerState */4,
-                            _0: /* Unknown */2
-                          });
-            }
-          };
-          WebextensionPolyfill.storage.onChanged.addListener(handleChange);
-          return (function (param) {
-                    WebextensionPolyfill.storage.onChanged.removeListener(handleChange);
-                  });
-        }), []);
-  var setItem = function (action) {
-    var dict = {};
-    if (typeof action === "number") {
-      WebextensionPolyfill.storage.local.clear();
-    } else {
-      switch (action.TAG | 0) {
-        case /* LocalHostTime */0 :
-            dict["localHostTime"] = action._0.toString();
-            break;
-        case /* SetLocalHostId */1 :
-            dict["localHostId"] = action._0;
-            break;
-        case /* SetRemoteHostId */2 :
-            dict["remoteHostId"] = action._0;
-            break;
-        case /* SetConnectedPeers */3 :
-            dict["connectedPeers"] = action._0.toString();
-            break;
-        case /* SetPlayerState */4 :
-            switch (action._0) {
-              case /* Playing */0 :
-                  dict["playerState"] = "playing";
-                  break;
-              case /* Paused */1 :
-                  dict["playerState"] = "paused";
-                  break;
-              case /* Unknown */2 :
-                  dict["playerState"] = "unknown";
-                  break;
-              
-            }
-            break;
-        
-      }
-    }
-    WebextensionPolyfill.storage.local.set(dict);
-  };
   return [
           match[0],
-          setItem
+          match[1]
         ];
 }
 
 function useVideo(param) {
   var match = React.useState(function () {
-        
+        return false;
       });
-  var setVideoEl = match[1];
+  var setHasVideoEl = match[1];
   React.useEffect((function () {
           var interval = {
             contents: null
@@ -367,25 +148,25 @@ function useVideo(param) {
           };
           var checkVideoEl = function (param) {
             var el = Utils.getVideoEl(undefined);
-            if (el === undefined) {
-              return Curry._1(setVideoEl, (function (param) {
-                            
-                          }));
-            }
-            var el$1 = Caml_option.valFromOption(el);
-            if (el$1.duration > 60) {
-              return Curry._1(setVideoEl, (function (param) {
-                            return Caml_option.some(el$1);
-                          }));
+            if (el !== undefined) {
+              if (Caml_option.valFromOption(el).duration > 60) {
+                return Curry._1(setHasVideoEl, (function (param) {
+                              return true;
+                            }));
+              } else {
+                Browser$ReScriptLogger.debug({
+                      rootModule: "Hooks",
+                      subModulePath: /* [] */0,
+                      value: "useVideo",
+                      fullPath: "Hooks.useVideo"
+                    }, "Video element probably an ad");
+                return Curry._1(setHasVideoEl, (function (param) {
+                              return false;
+                            }));
+              }
             } else {
-              Browser$ReScriptLogger.debug({
-                    rootModule: "Hooks",
-                    subModulePath: /* [] */0,
-                    value: "useVideo",
-                    fullPath: "Hooks.useVideo"
-                  }, "Video element probably an ad");
-              return Curry._1(setVideoEl, (function (param) {
-                            
+              return Curry._1(setHasVideoEl, (function (param) {
+                            return false;
                           }));
             }
           };
@@ -395,7 +176,7 @@ function useVideo(param) {
   return match[0];
 }
 
-function usePeer(remoteHostId, videoEl) {
+function usePeer(remoteHostId) {
   var peer = React.useRef(new Peerjs.Peer(undefined, {
             debug: 2,
             secure: true
@@ -566,6 +347,8 @@ function usePeer(remoteHostId, videoEl) {
           }
         }), [connections]);
   React.useEffect((function () {
+          var el = Utils.getVideoEl(undefined);
+          var videoEl = el !== undefined ? Caml_option.valFromOption(el) : Pervasives.failwith("Video element went missing");
           var handlePlay = function ($$event) {
             var currentTime = $$event.target.currentTime;
             Browser$ReScriptLogger.debug({
@@ -612,10 +395,7 @@ function usePeer(remoteHostId, videoEl) {
                     videoEl.removeEventListener("play", handlePlay);
                     videoEl.removeEventListener("pause", handlePause);
                   });
-        }), [
-        videoEl,
-        emitToPeers
-      ]);
+        }), [emitToPeers]);
   React.useEffect((function () {
           peer.current.on("open", (function (id) {
                   Browser$ReScriptLogger.debug1({

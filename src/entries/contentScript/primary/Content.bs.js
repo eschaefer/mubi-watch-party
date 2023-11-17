@@ -14,6 +14,7 @@ import * as Js_null_undefined from "rescript/lib/es6/js_null_undefined.js";
 function Content$Trigger(Props) {
   var state = Props.state;
   var setRemoteHostId = Props.setRemoteHostId;
+  var reset = Props.reset;
   var match = React.useState(function () {
         return false;
       });
@@ -28,6 +29,7 @@ function Content$Trigger(Props) {
       });
   var setIsControlVisible = match$2[1];
   var visibility = match$2[0] ? "opacity-100" : "opacity-0";
+  var connected = state.connectedPeers > 0 ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100";
   React.useEffect((function () {
           var interval = {
             contents: null
@@ -94,32 +96,39 @@ function Content$Trigger(Props) {
                                 className: "font-medium text-gray-900"
                               }, "Your ID is"), React.createElement("p", {
                                 className: "font-semibold font-mono"
-                              }, id)) : React.createElement(React.Fragment, undefined), React.createElement("form", {
-                          onSubmit: (function ($$event) {
-                              $$event.preventDefault();
-                              Curry._1(setRemoteHostId, input);
-                            })
-                        }, React.createElement("label", {
-                              className: "block font-medium leading-6 text-gray-900",
-                              htmlFor: "peerid"
-                            }, "Connect to another ID"), React.createElement("div", {
-                              className: "mt-2 pb-2"
-                            }, React.createElement("input", {
-                                  className: "block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
-                                  id: "peerid",
-                                  autoComplete: "off",
-                                  name: "peerid",
-                                  placeholder: "Get this ID from another user",
-                                  type: "text",
-                                  onChange: (function ($$event) {
-                                      Curry._1(setInput, (function (param) {
-                                              return $$event.target.value;
-                                            }));
-                                    })
-                                })), React.createElement("button", {
-                              className: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
-                              type: "submit"
-                            }, "Connect"))), React.createElement("div", {
+                              }, id)) : React.createElement(React.Fragment, undefined), state.connectedPeers > 0 ? React.createElement("button", {
+                            className: "rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
+                            onClick: (function (param) {
+                                Curry._1(reset, undefined);
+                              })
+                          }, "Disconnect") : React.createElement("form", {
+                            onSubmit: (function ($$event) {
+                                $$event.preventDefault();
+                                Curry._1(setRemoteHostId, input);
+                              })
+                          }, React.createElement("label", {
+                                className: "block font-medium leading-6 text-gray-900",
+                                htmlFor: "peerid"
+                              }, "Connect to another ID"), React.createElement("div", {
+                                className: "mt-2 pb-2"
+                              }, React.createElement("input", {
+                                    className: "block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+                                    id: "peerid",
+                                    autoComplete: "off",
+                                    name: "peerid",
+                                    placeholder: "Get this ID from another user",
+                                    type: "text",
+                                    onChange: (function ($$event) {
+                                        Curry._1(setInput, (function (param) {
+                                                return $$event.target.value;
+                                              }));
+                                      })
+                                  })), React.createElement("div", {
+                                className: "flex gap-3"
+                              }, React.createElement("button", {
+                                    className: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                                    type: "submit"
+                                  }, "Connect")))), React.createElement("div", {
                       className: "inline-block overflow-hidden rounded-lg bg-white px-2 py-3 shadow"
                     }, React.createElement("p", {
                           className: "truncate text-xs font-medium text-gray-500"
@@ -132,7 +141,7 @@ function Content$Trigger(Props) {
   return React.createElement(React.Fragment, undefined, React.createElement("div", {
                   className: "fixed z-10 bottom-0 left-1/2 -translate-x-1/2 h-[65px] flex items-center"
                 }, React.createElement("button", {
-                      className: "" + visibility + " transition-opacity duration-200 flex items-center gap-2 rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100",
+                      className: "" + visibility + " " + connected + " transition-opacity duration-200 flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold shadow-sm",
                       onClick: (function (param) {
                           Curry._1(setIsOpen, (function (param) {
                                   return true;
@@ -151,8 +160,7 @@ function Content$Manager(Props) {
   var setLocalHostId = Props.setLocalHostId;
   var syncConnectionsCountToStorage = Props.syncConnectionsCountToStorage;
   var remoteHostId = Props.remoteHostId;
-  var videoEl = Props.videoEl;
-  var match = Hooks.usePeer(remoteHostId, videoEl);
+  var match = Hooks.usePeer(remoteHostId);
   var localPeerId = match[1];
   var connectionsCount = Belt_List.length(match[2]);
   React.useEffect((function () {
@@ -160,10 +168,7 @@ function Content$Manager(Props) {
             Curry._1(setLocalHostId, localPeerId);
           }
           
-        }), [
-        localPeerId,
-        setLocalHostId
-      ]);
+        }), [localPeerId]);
   React.useEffect((function () {
           Curry._1(syncConnectionsCountToStorage, connectionsCount);
         }), [connectionsCount]);
@@ -176,32 +181,34 @@ var Manager = {
 
 function Content(Props) {
   var match = Hooks.useStorage(undefined);
-  var setItem = match[1];
+  var dispatch = match[1];
   var state = match[0];
   var video = Hooks.useVideo(undefined);
-  if (video !== undefined) {
+  if (video) {
     return React.createElement(React.Fragment, undefined, React.createElement(Content$Manager, {
                     setLocalHostId: (function (id) {
-                        Curry._1(setItem, {
+                        Curry._1(dispatch, {
                               TAG: /* SetLocalHostId */1,
                               _0: id
                             });
                       }),
                     syncConnectionsCountToStorage: (function (connectionsCount) {
-                        Curry._1(setItem, {
+                        Curry._1(dispatch, {
                               TAG: /* SetConnectedPeers */3,
                               _0: connectionsCount
                             });
                       }),
-                    remoteHostId: state.remoteHostId,
-                    videoEl: Caml_option.valFromOption(video)
+                    remoteHostId: state.remoteHostId
                   }), React.createElement(Content$Trigger, {
                     state: state,
                     setRemoteHostId: (function (id) {
-                        Curry._1(setItem, {
+                        Curry._1(dispatch, {
                               TAG: /* SetRemoteHostId */2,
                               _0: id
                             });
+                      }),
+                    reset: (function (param) {
+                        Curry._1(dispatch, /* Reset */0);
                       })
                   }));
   } else {

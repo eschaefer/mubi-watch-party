@@ -1,13 +1,14 @@
 import pkg from '../package.json';
 
 const mubiPermission = 'https://mubi.com/*';
+const peerPermission = '*://*.peerjs.com/*';
 const addonId = `{0C87B59D-363A-4AB4-9C27-27E05BE59A75}`;
 
 const sharedManifest = {
   content_scripts: [
     {
       js: ['src/entries/contentScript/primary/main.jsx'],
-      matches: [mubiPermission],
+      matches: [mubiPermission, peerPermission],
     },
   ],
   icons: {
@@ -26,7 +27,7 @@ const sharedManifest = {
     page: 'src/entries/options/index.html',
     open_in_tab: true,
   },
-  permissions: ['tabs', 'storage'],
+  permissions: ['tabs'],
   browser_specific_settings: {
     gecko: {
       id: addonId,
@@ -51,13 +52,13 @@ const ManifestV2 = {
     ...sharedManifest.options_ui,
     chrome_style: false,
   },
-  permissions: [...sharedManifest.permissions, mubiPermission],
+  permissions: [...sharedManifest.permissions, mubiPermission, peerPermission],
 };
 
 const ManifestV3 = {
   ...sharedManifest,
   action: browserAction,
-  host_permissions: [mubiPermission, '*://*.peerjs.com/*'],
+  host_permissions: [peerPermission],
 };
 
 export function getManifest(manifestVersion) {
