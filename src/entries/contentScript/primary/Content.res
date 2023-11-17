@@ -1,3 +1,25 @@
+@val @scope(("navigator", "clipboard"))
+external writeText: string => unit = "writeText"
+
+module LinkIcon = {
+  @react.component
+  let make = () => {
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-4 h-4">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+      />
+    </svg>
+  }
+}
+
 module Trigger = {
   @module("element-visible") external elementVisible: Dom.element => bool = "default"
 
@@ -6,11 +28,33 @@ module Trigger = {
     let (isOpen, setIsOpen) = React.useState(() => false)
     let (input, setInput) = React.useState(() => "")
     let (isControlVisible, setIsControlVisible) = React.useState(() => false)
+    let (copied, setCopied) = React.useState(() => false)
+    let localHostId = state.localHostId
+
     let visibility = isControlVisible ? "opacity-100" : "opacity-0"
     let connected =
       state.connectedPeers > 0
         ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
         : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+
+    React.useEffect1(() => {
+      // For links shared with a party ID, set the ID as the remote host ID
+      let url = Utils.getPageUrl()
+      let urlWithPartyParam = Js.String2.split(url, "?party=")
+      let id = urlWithPartyParam->Belt.Array.get(1)
+
+      %log.debug(
+        "Params check"
+        ("id", id)
+      )
+
+      switch (id, localHostId) {
+      | (Some(id), Some(_)) => setRemoteHostId(id)
+      | _ => ()
+      }
+
+      None
+    }, [localHostId])
 
     // Interval to observe if the control bar is visible or not
     React.useEffect0(() => {
@@ -74,6 +118,26 @@ module Trigger = {
                   <div className="pb-4">
                     <p className="font-medium text-gray-900"> {React.string("Your ID is")} </p>
                     <p className="font-semibold font-mono"> {React.string(id)} </p>
+                    <button
+                      className="mt-2"
+                      onClick={_ => {
+                        // Get current player URL, and append id as a query param
+                        let url = Utils.getPageUrl()
+                        let urlWithId = url ++ "?party=" ++ id
+                        writeText(urlWithId)
+                        setCopied(_ => true)
+                        Js.Global.setTimeout(() => {
+                          setCopied(_ => false)
+                        }, 3000)
+                      }}>
+                      <div className="flex gap-2 items-center font-semibold">
+                        <LinkIcon />
+                        {switch copied {
+                        | true => <span> {React.string("Copied!")} </span>
+                        | false => <span> {React.string("Copy link to share")} </span>
+                        }}
+                      </div>
+                    </button>
                   </div>
                 }}
                 {switch state.connectedPeers > 0 {

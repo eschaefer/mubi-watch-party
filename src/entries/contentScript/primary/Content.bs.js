@@ -7,9 +7,30 @@ import * as React from "react";
 import * as Header from "../../shared/components/Header.bs.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as GroupIcon from "../../shared/components/GroupIcon.bs.js";
+import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import ElementVisible from "element-visible";
 import * as Js_null_undefined from "rescript/lib/es6/js_null_undefined.js";
+import * as Browser$ReScriptLogger from "rescript-logger/src/loggers/Browser.bs.js";
+
+function Content$LinkIcon(Props) {
+  return React.createElement("svg", {
+              className: "w-4 h-4",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "1.5",
+              viewBox: "0 0 24 24",
+              xmlns: "http://www.w3.org/2000/svg"
+            }, React.createElement("path", {
+                  d: "M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                }));
+}
+
+var LinkIcon = {
+  make: Content$LinkIcon
+};
 
 function Content$Trigger(Props) {
   var state = Props.state;
@@ -28,8 +49,37 @@ function Content$Trigger(Props) {
         return false;
       });
   var setIsControlVisible = match$2[1];
+  var match$3 = React.useState(function () {
+        return false;
+      });
+  var setCopied = match$3[1];
+  var localHostId = state.localHostId;
   var visibility = match$2[0] ? "opacity-100" : "opacity-0";
   var connected = state.connectedPeers > 0 ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100";
+  React.useEffect((function () {
+          var url = Utils.getPageUrl(undefined);
+          var urlWithPartyParam = url.split("?party=");
+          var id = Belt_Array.get(urlWithPartyParam, 1);
+          Browser$ReScriptLogger.debug2({
+                rootModule: "Content",
+                subModulePath: {
+                  hd: "Trigger",
+                  tl: /* [] */0
+                },
+                value: "make",
+                fullPath: "Content.Trigger.make"
+              }, "Params check", [
+                "urlWithPartyParam",
+                urlWithPartyParam
+              ], [
+                "id",
+                id
+              ]);
+          if (id !== undefined && localHostId !== undefined) {
+            Curry._1(setRemoteHostId, id);
+          }
+          
+        }), [localHostId]);
   React.useEffect((function () {
           var interval = {
             contents: null
@@ -96,7 +146,19 @@ function Content$Trigger(Props) {
                                 className: "font-medium text-gray-900"
                               }, "Your ID is"), React.createElement("p", {
                                 className: "font-semibold font-mono"
-                              }, id)) : React.createElement(React.Fragment, undefined), state.connectedPeers > 0 ? React.createElement("button", {
+                              }, id), React.createElement("button", {
+                                className: "",
+                                onClick: (function (param) {
+                                    var url = Utils.getPageUrl(undefined);
+                                    var urlWithId = url + "?party=" + id;
+                                    navigator.clipboard.writeText(urlWithId);
+                                    Curry._1(setCopied, (function (param) {
+                                            return true;
+                                          }));
+                                  })
+                              }, React.createElement("div", {
+                                    className: "flex gap-2 items-center font-semibold"
+                                  }, React.createElement(Content$LinkIcon, {}), React.createElement("span", undefined, "Copy link to share")))) : React.createElement(React.Fragment, undefined), state.connectedPeers > 0 ? React.createElement("button", {
                             className: "rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
                             onClick: (function (param) {
                                 Curry._1(reset, undefined);
@@ -219,6 +281,7 @@ function Content(Props) {
 var make = Content;
 
 export {
+  LinkIcon ,
   Trigger ,
   Manager ,
   make ,
