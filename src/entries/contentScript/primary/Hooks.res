@@ -6,8 +6,6 @@ open Webapi.Dom
 @get external currentTime: Dom.eventTarget => float = "currentTime"
 @set external setCurrentTime: (Dom.element, float) => unit = "currentTime"
 
-type storagePlayerState = Playing | Paused | Unknown
-
 type timestamp = float
 
 type currentFilm = {
@@ -15,31 +13,25 @@ type currentFilm = {
   url: string,
 }
 
-// Not to be synced with storage
-type hostAction = Film(currentFilm) | Play(timestamp) | Pause(timestamp) | TimeUpdate(timestamp)
+type transmittableAction =
+  Film(currentFilm) | Play(timestamp) | Pause(timestamp) | TimeUpdate(timestamp)
 
-type storageAction =
+type action =
   | Reset
   | LocalHostTime(float)
   | SetLocalHostId(string)
   | SetRemoteHostId(string)
-  | SetConnectedPeers(int)
-  | SetPlayerState(storagePlayerState)
 
-type storageState = {
+type state = {
   localHostId: option<string>,
   remoteHostId: option<string>,
   localHostTime: float,
-  connectedPeers: int,
-  playerState: storagePlayerState,
 }
 
 let initialState = {
   localHostId: None,
   remoteHostId: None,
   localHostTime: 0.0,
-  connectedPeers: 0,
-  playerState: Unknown,
 }
 
 let storageReducer = (state, action) => {
@@ -57,15 +49,6 @@ let storageReducer = (state, action) => {
   | SetRemoteHostId(id) => {
       ...state,
       remoteHostId: Some(id),
-    }
-
-  | SetConnectedPeers(count) => {
-      ...state,
-      connectedPeers: count,
-    }
-  | SetPlayerState(playerState) => {
-      ...state,
-      playerState,
     }
   }
 }

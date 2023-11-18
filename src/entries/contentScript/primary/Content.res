@@ -1,3 +1,5 @@
+open Hooks
+
 @val @scope(("navigator", "clipboard"))
 external writeText: string => unit = "writeText"
 
@@ -24,18 +26,29 @@ module Trigger = {
   @module("element-visible") external elementVisible: Dom.element => bool = "default"
 
   @react.component
-  let make = (~state: Hooks.storageState, ~setRemoteHostId, ~reset) => {
+  let make = (~state, ~setRemoteHostId, ~reset, ~setLocalHostId) => {
+    let (_, localPeerId, connections) = usePeer(~remoteHostId=state.remoteHostId)
     let (isOpen, setIsOpen) = React.useState(() => false)
     let (input, setInput) = React.useState(() => "")
     let (isControlVisible, setIsControlVisible) = React.useState(() => false)
     let (copied, setCopied) = React.useState(() => false)
     let localHostId = state.localHostId
+    let connectionCount = connections->Belt.List.length
 
     let visibility = isControlVisible ? "opacity-100" : "opacity-0"
     let connected =
-      state.connectedPeers > 0
+      connectionCount > 0
         ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
         : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100"
+
+    React.useEffect1(() => {
+      switch localPeerId {
+      | Some(id) => setLocalHostId(id)
+      | None => ()
+      }
+
+      None
+    }, [localPeerId])
 
     React.useEffect1(() => {
       // For links shared with a party ID, set the ID as the remote host ID
@@ -126,7 +139,7 @@ module Trigger = {
                         let urlWithId = url ++ "?party=" ++ id
                         writeText(urlWithId)
                         setCopied(_ => true)
-                        Js.Global.setTimeout(() => {
+                        let _ = Js.Global.setTimeout(() => {
                           setCopied(_ => false)
                         }, 3000)
                       }}>
@@ -140,7 +153,7 @@ module Trigger = {
                     </button>
                   </div>
                 }}
-                {switch state.connectedPeers > 0 {
+                {switch connectionCount > 0 {
                 | true =>
                   <button
                     onClick={_ => reset()}
@@ -182,7 +195,7 @@ module Trigger = {
                   {React.string("Currently connected")}
                 </p>
                 <p className="mt-1 text-xl font-semibold tracking-tight text-gray-900">
-                  {React.string(Belt.Int.toString(state.connectedPeers))}
+                  {React.string(Belt.Int.toString(connectionCount))}
                 </p>
               </div>
             </div>
@@ -193,56 +206,23 @@ module Trigger = {
   }
 }
 
-module Manager = {
-  @react.component
-  let make = (~setLocalHostId, ~syncConnectionsCountToStorage, ~remoteHostId) => {
-    let (_, localPeerId, connections) = Hooks.usePeer(~remoteHostId)
-    let connectionsCount = connections->Belt.List.length
-
-    React.useEffect1(() => {
-      switch localPeerId {
-      | Some(id) => setLocalHostId(id)
-      | None => ()
-      }
-
-      None
-    }, [localPeerId])
-
-    React.useEffect1(() => {
-      syncConnectionsCountToStorage(connectionsCount)
-
-      None
-    }, [connectionsCount])
-
-    <> </>
-  }
-}
-
 @react.component
 let make = () => {
-  let (state, dispatch) = Hooks.useStorage()
-  let video = Hooks.useVideo()
+  let (state, dispatch) = useStorage()
+  let video = useVideo()
 
   switch video {
   | true =>
-    <>
-      <Manager
-        remoteHostId={state.remoteHostId}
-        setLocalHostId={id => {
-          dispatch(SetLocalHostId(id))
-        }}
-        syncConnectionsCountToStorage={connectionsCount => {
-          dispatch(SetConnectedPeers(connectionsCount))
-        }}
-      />
-      <Trigger
-        state={state}
-        setRemoteHostId={id => {
-          dispatch(SetRemoteHostId(id))
-        }}
-        reset={_ => dispatch(Reset)}
-      />
-    </>
+    <Trigger
+      state={state}
+      setRemoteHostId={id => {
+        dispatch(SetRemoteHostId(id))
+      }}
+      setLocalHostId={id => {
+        dispatch(SetLocalHostId(id))
+      }}
+      reset={_ => dispatch(Reset)}
+    />
 
   | false => <> </>
   }

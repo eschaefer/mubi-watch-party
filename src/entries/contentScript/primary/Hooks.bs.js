@@ -14,9 +14,7 @@ import * as Browser$ReScriptLogger from "rescript-logger/src/loggers/Browser.bs.
 var initialState = {
   localHostId: undefined,
   remoteHostId: undefined,
-  localHostTime: 0.0,
-  connectedPeers: 0,
-  playerState: /* Unknown */2
+  localHostTime: 0.0
 };
 
 function storageReducer(state, action) {
@@ -44,9 +42,7 @@ function storageReducer(state, action) {
         return {
                 localHostId: state.localHostId,
                 remoteHostId: state.remoteHostId,
-                localHostTime: timestamp,
-                connectedPeers: state.connectedPeers,
-                playerState: state.playerState
+                localHostTime: timestamp
               };
     case /* SetLocalHostId */1 :
         var id = action._0;
@@ -62,9 +58,7 @@ function storageReducer(state, action) {
         return {
                 localHostId: id,
                 remoteHostId: state.remoteHostId,
-                localHostTime: state.localHostTime,
-                connectedPeers: state.connectedPeers,
-                playerState: state.playerState
+                localHostTime: state.localHostTime
               };
     case /* SetRemoteHostId */2 :
         var id$1 = action._0;
@@ -80,45 +74,7 @@ function storageReducer(state, action) {
         return {
                 localHostId: state.localHostId,
                 remoteHostId: id$1,
-                localHostTime: state.localHostTime,
-                connectedPeers: state.connectedPeers,
-                playerState: state.playerState
-              };
-    case /* SetConnectedPeers */3 :
-        var count = action._0;
-        Browser$ReScriptLogger.debug1({
-              rootModule: "Hooks",
-              subModulePath: /* [] */0,
-              value: "storageReducer",
-              fullPath: "Hooks.storageReducer"
-            }, "SetConnectedPeers with payload", [
-              "count",
-              count
-            ]);
-        return {
-                localHostId: state.localHostId,
-                remoteHostId: state.remoteHostId,
-                localHostTime: state.localHostTime,
-                connectedPeers: count,
-                playerState: state.playerState
-              };
-    case /* SetPlayerState */4 :
-        var playerState = action._0;
-        Browser$ReScriptLogger.debug1({
-              rootModule: "Hooks",
-              subModulePath: /* [] */0,
-              value: "storageReducer",
-              fullPath: "Hooks.storageReducer"
-            }, "SetPlayerState with payload", [
-              "playerState",
-              playerState
-            ]);
-        return {
-                localHostId: state.localHostId,
-                remoteHostId: state.remoteHostId,
-                localHostTime: state.localHostTime,
-                connectedPeers: state.connectedPeers,
-                playerState: playerState
+                localHostTime: state.localHostTime
               };
     
   }

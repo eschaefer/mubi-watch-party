@@ -36,31 +36,41 @@ function Content$Trigger(Props) {
   var state = Props.state;
   var setRemoteHostId = Props.setRemoteHostId;
   var reset = Props.reset;
-  var match = React.useState(function () {
+  var setLocalHostId = Props.setLocalHostId;
+  var match = Hooks.usePeer(state.remoteHostId);
+  var localPeerId = match[1];
+  var match$1 = React.useState(function () {
         return false;
       });
-  var setIsOpen = match[1];
-  var match$1 = React.useState(function () {
+  var setIsOpen = match$1[1];
+  var match$2 = React.useState(function () {
         return "";
       });
-  var setInput = match$1[1];
-  var input = match$1[0];
-  var match$2 = React.useState(function () {
-        return false;
-      });
-  var setIsControlVisible = match$2[1];
+  var setInput = match$2[1];
+  var input = match$2[0];
   var match$3 = React.useState(function () {
         return false;
       });
-  var setCopied = match$3[1];
+  var setIsControlVisible = match$3[1];
+  var match$4 = React.useState(function () {
+        return false;
+      });
+  var setCopied = match$4[1];
   var localHostId = state.localHostId;
-  var visibility = match$2[0] ? "opacity-100" : "opacity-0";
-  var connected = state.connectedPeers > 0 ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100";
+  var connectionCount = Belt_List.length(match[2]);
+  var visibility = match$3[0] ? "opacity-100" : "opacity-0";
+  var connected = connectionCount > 0 ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" : "text-indigo-600 bg-indigo-50 hover:bg-indigo-100";
+  React.useEffect((function () {
+          if (localPeerId !== undefined) {
+            Curry._1(setLocalHostId, localPeerId);
+          }
+          
+        }), [localPeerId]);
   React.useEffect((function () {
           var url = Utils.getPageUrl(undefined);
           var urlWithPartyParam = url.split("?party=");
           var id = Belt_Array.get(urlWithPartyParam, 1);
-          Browser$ReScriptLogger.debug2({
+          Browser$ReScriptLogger.debug1({
                 rootModule: "Content",
                 subModulePath: {
                   hd: "Trigger",
@@ -69,9 +79,6 @@ function Content$Trigger(Props) {
                 value: "make",
                 fullPath: "Content.Trigger.make"
               }, "Params check", [
-                "urlWithPartyParam",
-                urlWithPartyParam
-              ], [
                 "id",
                 id
               ]);
@@ -112,7 +119,7 @@ function Content$Trigger(Props) {
           return cancelInterval;
         }), []);
   var tmp;
-  if (match[0]) {
+  if (match$1[0]) {
     var id = state.localHostId;
     tmp = React.createElement("div", {
           className: "fixed inset-0 z-10 w-screen overflow-y-auto bg-gray-500 bg-opacity-50"
@@ -147,7 +154,7 @@ function Content$Trigger(Props) {
                               }, "Your ID is"), React.createElement("p", {
                                 className: "font-semibold font-mono"
                               }, id), React.createElement("button", {
-                                className: "",
+                                className: "mt-2",
                                 onClick: (function (param) {
                                     var url = Utils.getPageUrl(undefined);
                                     var urlWithId = url + "?party=" + id;
@@ -155,10 +162,15 @@ function Content$Trigger(Props) {
                                     Curry._1(setCopied, (function (param) {
                                             return true;
                                           }));
+                                    setTimeout((function (param) {
+                                            Curry._1(setCopied, (function (param) {
+                                                    return false;
+                                                  }));
+                                          }), 3000);
                                   })
                               }, React.createElement("div", {
                                     className: "flex gap-2 items-center font-semibold"
-                                  }, React.createElement(Content$LinkIcon, {}), React.createElement("span", undefined, "Copy link to share")))) : React.createElement(React.Fragment, undefined), state.connectedPeers > 0 ? React.createElement("button", {
+                                  }, React.createElement(Content$LinkIcon, {}), match$4[0] ? React.createElement("span", undefined, "Copied!") : React.createElement("span", undefined, "Copy link to share")))) : React.createElement(React.Fragment, undefined), connectionCount > 0 ? React.createElement("button", {
                             className: "rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
                             onClick: (function (param) {
                                 Curry._1(reset, undefined);
@@ -196,7 +208,7 @@ function Content$Trigger(Props) {
                           className: "truncate text-xs font-medium text-gray-500"
                         }, "Currently connected"), React.createElement("p", {
                           className: "mt-1 text-xl font-semibold tracking-tight text-gray-900"
-                        }, String(state.connectedPeers))))));
+                        }, String(connectionCount))))));
   } else {
     tmp = React.createElement(React.Fragment, undefined);
   }
@@ -218,61 +230,29 @@ var Trigger = {
   make: Content$Trigger
 };
 
-function Content$Manager(Props) {
-  var setLocalHostId = Props.setLocalHostId;
-  var syncConnectionsCountToStorage = Props.syncConnectionsCountToStorage;
-  var remoteHostId = Props.remoteHostId;
-  var match = Hooks.usePeer(remoteHostId);
-  var localPeerId = match[1];
-  var connectionsCount = Belt_List.length(match[2]);
-  React.useEffect((function () {
-          if (localPeerId !== undefined) {
-            Curry._1(setLocalHostId, localPeerId);
-          }
-          
-        }), [localPeerId]);
-  React.useEffect((function () {
-          Curry._1(syncConnectionsCountToStorage, connectionsCount);
-        }), [connectionsCount]);
-  return React.createElement(React.Fragment, undefined);
-}
-
-var Manager = {
-  make: Content$Manager
-};
-
 function Content(Props) {
   var match = Hooks.useStorage(undefined);
   var dispatch = match[1];
-  var state = match[0];
   var video = Hooks.useVideo(undefined);
   if (video) {
-    return React.createElement(React.Fragment, undefined, React.createElement(Content$Manager, {
-                    setLocalHostId: (function (id) {
-                        Curry._1(dispatch, {
-                              TAG: /* SetLocalHostId */1,
-                              _0: id
-                            });
-                      }),
-                    syncConnectionsCountToStorage: (function (connectionsCount) {
-                        Curry._1(dispatch, {
-                              TAG: /* SetConnectedPeers */3,
-                              _0: connectionsCount
-                            });
-                      }),
-                    remoteHostId: state.remoteHostId
-                  }), React.createElement(Content$Trigger, {
-                    state: state,
-                    setRemoteHostId: (function (id) {
-                        Curry._1(dispatch, {
-                              TAG: /* SetRemoteHostId */2,
-                              _0: id
-                            });
-                      }),
-                    reset: (function (param) {
-                        Curry._1(dispatch, /* Reset */0);
-                      })
-                  }));
+    return React.createElement(Content$Trigger, {
+                state: match[0],
+                setRemoteHostId: (function (id) {
+                    Curry._1(dispatch, {
+                          TAG: /* SetRemoteHostId */2,
+                          _0: id
+                        });
+                  }),
+                reset: (function (param) {
+                    Curry._1(dispatch, /* Reset */0);
+                  }),
+                setLocalHostId: (function (id) {
+                    Curry._1(dispatch, {
+                          TAG: /* SetLocalHostId */1,
+                          _0: id
+                        });
+                  })
+              });
   } else {
     return React.createElement(React.Fragment, undefined);
   }
@@ -283,7 +263,6 @@ var make = Content;
 export {
   LinkIcon ,
   Trigger ,
-  Manager ,
   make ,
 }
 /* Hooks Not a pure module */
