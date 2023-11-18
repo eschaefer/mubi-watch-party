@@ -208,7 +208,7 @@ module Trigger = {
 
 @react.component
 let make = () => {
-  let (state, dispatch) = useStorage()
+  let (state, dispatch) = useLocalState()
   let video = useVideo()
 
   switch video {

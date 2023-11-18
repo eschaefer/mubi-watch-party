@@ -16,28 +16,28 @@ type currentFilm = {
 type transmittableAction =
   Film(currentFilm) | Play(timestamp) | Pause(timestamp) | TimeUpdate(timestamp)
 
-type action =
+type localAction =
   | Reset
   | LocalHostTime(float)
   | SetLocalHostId(string)
   | SetRemoteHostId(string)
 
-type state = {
+type localState = {
   localHostId: option<string>,
   remoteHostId: option<string>,
   localHostTime: float,
 }
 
-let initialState = {
+let initialLocalState = {
   localHostId: None,
   remoteHostId: None,
   localHostTime: 0.0,
 }
 
-let storageReducer = (state, action) => {
+let localStateReducer = (state, action) => {
   @log
   switch action {
-  | Reset => initialState
+  | Reset => initialLocalState
   | LocalHostTime(timestamp) => {
       ...state,
       localHostTime: timestamp,
@@ -53,8 +53,8 @@ let storageReducer = (state, action) => {
   }
 }
 
-let useStorage = () => {
-  let (state, dispatch) = React.useReducer(storageReducer, initialState)
+let useLocalState = () => {
+  let (state, dispatch) = React.useReducer(localStateReducer, initialLocalState)
 
   (state, dispatch)
 }

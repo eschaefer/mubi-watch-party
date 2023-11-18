@@ -11,21 +11,21 @@ import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as Js_null_undefined from "rescript/lib/es6/js_null_undefined.js";
 import * as Browser$ReScriptLogger from "rescript-logger/src/loggers/Browser.bs.js";
 
-var initialState = {
+var initialLocalState = {
   localHostId: undefined,
   remoteHostId: undefined,
   localHostTime: 0.0
 };
 
-function storageReducer(state, action) {
+function localStateReducer(state, action) {
   if (typeof action === "number") {
     Browser$ReScriptLogger.debug({
           rootModule: "Hooks",
           subModulePath: /* [] */0,
-          value: "storageReducer",
-          fullPath: "Hooks.storageReducer"
+          value: "localStateReducer",
+          fullPath: "Hooks.localStateReducer"
         }, "Reset");
-    return initialState;
+    return initialLocalState;
   }
   switch (action.TAG | 0) {
     case /* LocalHostTime */0 :
@@ -33,8 +33,8 @@ function storageReducer(state, action) {
         Browser$ReScriptLogger.debug1({
               rootModule: "Hooks",
               subModulePath: /* [] */0,
-              value: "storageReducer",
-              fullPath: "Hooks.storageReducer"
+              value: "localStateReducer",
+              fullPath: "Hooks.localStateReducer"
             }, "LocalHostTime with payload", [
               "timestamp",
               timestamp
@@ -49,8 +49,8 @@ function storageReducer(state, action) {
         Browser$ReScriptLogger.debug1({
               rootModule: "Hooks",
               subModulePath: /* [] */0,
-              value: "storageReducer",
-              fullPath: "Hooks.storageReducer"
+              value: "localStateReducer",
+              fullPath: "Hooks.localStateReducer"
             }, "SetLocalHostId with payload", [
               "id",
               id
@@ -65,8 +65,8 @@ function storageReducer(state, action) {
         Browser$ReScriptLogger.debug1({
               rootModule: "Hooks",
               subModulePath: /* [] */0,
-              value: "storageReducer",
-              fullPath: "Hooks.storageReducer"
+              value: "localStateReducer",
+              fullPath: "Hooks.localStateReducer"
             }, "SetRemoteHostId with payload", [
               "id",
               id$1
@@ -80,8 +80,8 @@ function storageReducer(state, action) {
   }
 }
 
-function useStorage(param) {
-  var match = React.useReducer(storageReducer, initialState);
+function useLocalState(param) {
+  var match = React.useReducer(localStateReducer, initialLocalState);
   return [
           match[0],
           match[1]
@@ -473,9 +473,9 @@ function usePeer(remoteHostId) {
 }
 
 export {
-  initialState ,
-  storageReducer ,
-  useStorage ,
+  initialLocalState ,
+  localStateReducer ,
+  useLocalState ,
   useVideo ,
   usePeer ,
 }

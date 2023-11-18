@@ -231,7 +231,7 @@ var Trigger = {
 };
 
 function Content(Props) {
-  var match = Hooks.useStorage(undefined);
+  var match = Hooks.useLocalState(undefined);
   var dispatch = match[1];
   var video = Hooks.useVideo(undefined);
   if (video) {
