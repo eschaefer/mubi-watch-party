@@ -1,6 +1,6 @@
 # Mubi Watch Party
 
-A web extension to sync Mubi movies with friends.
+A web extension (Chrome + Firefox) to sync [Mubi](https://mubi.com) movies with friends.
 
 ## Installation
 
