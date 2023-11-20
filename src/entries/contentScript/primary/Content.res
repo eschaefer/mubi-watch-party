@@ -26,8 +26,11 @@ module Trigger = {
   @module("element-visible") external elementVisible: Dom.element => bool = "default"
 
   @react.component
-  let make = (~state, ~setRemoteHostId, ~reset, ~setLocalHostId) => {
-    let (_, localPeerId, connections) = usePeer(~remoteHostId=state.remoteHostId)
+  let make = (~state, ~setRemoteHostId, ~reset, ~setLocalHostId, ~setErrorMessage) => {
+    let (peer, localPeerId, connections) = usePeer(
+      ~remoteHostId=state.remoteHostId,
+      ~setErrorMessage,
+    )
     let (isOpen, setIsOpen) = React.useState(() => false)
     let (input, setInput) = React.useState(() => "")
     let (isControlVisible, setIsControlVisible) = React.useState(() => false)
@@ -156,7 +159,15 @@ module Trigger = {
                 {switch connectionCount > 0 {
                 | true =>
                   <button
-                    onClick={_ => reset()}
+                    onClick={_ => {
+                      %log.debug(
+                        "Disconnecting all connections"
+                        ("connections", connections)
+                      )
+                      connections->Belt.List.forEach(connection => {
+                        connection->Peer.DataConnection.close()
+                      })
+                    }}
                     className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                     {React.string("Disconnect")}
                   </button>
@@ -198,6 +209,10 @@ module Trigger = {
                   {React.string(Belt.Int.toString(connectionCount))}
                 </p>
               </div>
+              {switch state.errorMessage {
+              | None => <> </>
+              | Some(msg) => <Alert> {React.string(msg)} </Alert>
+              }}
             </div>
           </div>
         </div>
@@ -215,6 +230,9 @@ let make = () => {
   | true =>
     <Trigger
       state={state}
+      setErrorMessage={msg => {
+        dispatch(ErrorMessage(msg))
+      }}
       setRemoteHostId={id => {
         dispatch(SetRemoteHostId(id))
       }}

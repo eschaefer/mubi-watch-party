@@ -21,23 +21,30 @@ type localAction =
   | LocalHostTime(float)
   | SetLocalHostId(string)
   | SetRemoteHostId(string)
+  | ErrorMessage(string)
 
 type localState = {
   localHostId: option<string>,
   remoteHostId: option<string>,
   localHostTime: float,
+  errorMessage: option<string>,
 }
 
 let initialLocalState = {
   localHostId: None,
   remoteHostId: None,
   localHostTime: 0.0,
+  errorMessage: None,
 }
 
 let localStateReducer = (state, action) => {
   @log
   switch action {
-  | Reset => initialLocalState
+  | Reset => {
+      ...state,
+      remoteHostId: None,
+      localHostTime: 0.0,
+    }
   | LocalHostTime(timestamp) => {
       ...state,
       localHostTime: timestamp,
@@ -49,6 +56,10 @@ let localStateReducer = (state, action) => {
   | SetRemoteHostId(id) => {
       ...state,
       remoteHostId: Some(id),
+    }
+  | ErrorMessage(message) => {
+      ...state,
+      errorMessage: Some(message),
     }
   }
 }
@@ -90,7 +101,7 @@ let useVideo = () => {
   hasVideoEl
 }
 
-let usePeer = (~remoteHostId) => {
+let usePeer = (~remoteHostId, ~setErrorMessage) => {
   let peer = React.useRef(Peer.makePeer((), ~config={debug: 2, secure: true}))
   let (localPeerId, setLocalPeerId) = React.useState(() => None)
   let (connections, setConnections) = React.useState(() => list{})
@@ -246,57 +257,69 @@ let usePeer = (~remoteHostId) => {
   }, [handlePeerData])
 
   // When remoteHostId is provided, connect to that peer
-  React.useEffect2(() => {
-    switch remoteHostId {
+  React.useEffect3(() => {
+    // Only after local id is available.
+    switch localPeerId {
     | None => ()
-    | Some(remoteHostId) => {
-        let peerConnection = peer.current->Peer.connect(~id=remoteHostId, ())
+    | Some(_) =>
+      switch remoteHostId {
+      | None => ()
+      | Some(remoteHostId) =>
+        try {
+          let peerConnection = peer.current->Peer.connect(~id=remoteHostId, ())
 
-        peerConnection->Peer.DataConnection.on(
-          #"open"(
-            _ => {
-              %log.debug("data connection open")
+          peerConnection->Peer.DataConnection.on(
+            #"open"(
+              _ => {
+                %log.debug("data connection open")
 
-              setConnections(prev => list{peerConnection, ...prev})
+                setConnections(prev => list{peerConnection, ...prev})
 
-              peerConnection->Peer.DataConnection.on(#data(handlePeerData))
+                peerConnection->Peer.DataConnection.on(#data(handlePeerData))
 
-              peerConnection->Peer.DataConnection.on(
-                #close(
-                  _ => {
-                    %log.debug("data connection closed")
-                    // Remove connection from list
-                    setConnections(prev =>
-                      prev->Belt.List.keep(
-                        item => {
-                          item->Peer.DataConnection.peer != peerConnection->Peer.DataConnection.peer
-                        },
+                peerConnection->Peer.DataConnection.on(
+                  #close(
+                    _ => {
+                      %log.debug("data connection closed")
+                      // Remove connection from list
+                      setConnections(prev =>
+                        prev->Belt.List.keep(
+                          item => {
+                            item->Peer.DataConnection.peer !=
+                              peerConnection->Peer.DataConnection.peer
+                          },
+                        )
                       )
-                    )
-                  },
-                ),
-              )
+                    },
+                  ),
+                )
 
-              peerConnection->Peer.DataConnection.on(
-                #error(
-                  error => {
-                    %log.error(
-                      "data connection error"
-                      ("error", error)
-                    )
-                  },
-                ),
-              )
+                peerConnection->Peer.DataConnection.on(
+                  #error(
+                    error => {
+                      %log.error(
+                        "data connection error"
+                        ("error", error)
+                      )
+                    },
+                  ),
+                )
 
-              ()
-            },
-          ),
-        )
+                ()
+              },
+            ),
+          )
+        } catch {
+        | _ => {
+            %log.error("Failed to connect to peer")
+            setErrorMessage("Failed to connect to peer")
+          }
+        }
       }
     }
 
     None
-  }, (remoteHostId, handlePeerData))
+  }, (remoteHostId, handlePeerData, localPeerId))
 
   React.useEffect0(() => {
     let cleanup = () => {

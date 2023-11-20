@@ -14,7 +14,8 @@ import * as Browser$ReScriptLogger from "rescript-logger/src/loggers/Browser.bs.
 var initialLocalState = {
   localHostId: undefined,
   remoteHostId: undefined,
-  localHostTime: 0.0
+  localHostTime: 0.0,
+  errorMessage: undefined
 };
 
 function localStateReducer(state, action) {
@@ -25,7 +26,12 @@ function localStateReducer(state, action) {
           value: "localStateReducer",
           fullPath: "Hooks.localStateReducer"
         }, "Reset");
-    return initialLocalState;
+    return {
+            localHostId: state.localHostId,
+            remoteHostId: undefined,
+            localHostTime: 0.0,
+            errorMessage: state.errorMessage
+          };
   }
   switch (action.TAG | 0) {
     case /* LocalHostTime */0 :
@@ -42,7 +48,8 @@ function localStateReducer(state, action) {
         return {
                 localHostId: state.localHostId,
                 remoteHostId: state.remoteHostId,
-                localHostTime: timestamp
+                localHostTime: timestamp,
+                errorMessage: state.errorMessage
               };
     case /* SetLocalHostId */1 :
         var id = action._0;
@@ -58,7 +65,8 @@ function localStateReducer(state, action) {
         return {
                 localHostId: id,
                 remoteHostId: state.remoteHostId,
-                localHostTime: state.localHostTime
+                localHostTime: state.localHostTime,
+                errorMessage: state.errorMessage
               };
     case /* SetRemoteHostId */2 :
         var id$1 = action._0;
@@ -74,7 +82,25 @@ function localStateReducer(state, action) {
         return {
                 localHostId: state.localHostId,
                 remoteHostId: id$1,
-                localHostTime: state.localHostTime
+                localHostTime: state.localHostTime,
+                errorMessage: state.errorMessage
+              };
+    case /* ErrorMessage */3 :
+        var message = action._0;
+        Browser$ReScriptLogger.debug1({
+              rootModule: "Hooks",
+              subModulePath: /* [] */0,
+              value: "localStateReducer",
+              fullPath: "Hooks.localStateReducer"
+            }, "ErrorMessage with payload", [
+              "message",
+              message
+            ]);
+        return {
+                localHostId: state.localHostId,
+                remoteHostId: state.remoteHostId,
+                localHostTime: state.localHostTime,
+                errorMessage: message
               };
     
   }
@@ -132,7 +158,7 @@ function useVideo(param) {
   return match[0];
 }
 
-function usePeer(remoteHostId) {
+function usePeer(remoteHostId, setErrorMessage) {
   var peer = React.useRef(new Peerjs.Peer(undefined, {
             debug: 2,
             secure: true
@@ -141,6 +167,7 @@ function usePeer(remoteHostId) {
         
       });
   var setLocalPeerId = match[1];
+  var localPeerId = match[0];
   var match$1 = React.useState(function () {
         return /* [] */0;
       });
@@ -410,52 +437,64 @@ function usePeer(remoteHostId) {
                 }));
         }), [handlePeerData]);
   React.useEffect((function () {
-          if (remoteHostId !== undefined) {
-            var peerConnection = peer.current.connect(remoteHostId, undefined);
-            peerConnection.on("open", (function (param) {
-                    Browser$ReScriptLogger.debug({
-                          rootModule: "Hooks",
-                          subModulePath: /* [] */0,
-                          value: "usePeer",
-                          fullPath: "Hooks.usePeer"
-                        }, "data connection open");
-                    Curry._1(setConnections, (function (prev) {
-                            return {
-                                    hd: peerConnection,
-                                    tl: prev
-                                  };
-                          }));
-                    peerConnection.on("data", handlePeerData);
-                    peerConnection.on("close", (function (param) {
-                            Browser$ReScriptLogger.debug({
-                                  rootModule: "Hooks",
-                                  subModulePath: /* [] */0,
-                                  value: "usePeer",
-                                  fullPath: "Hooks.usePeer"
-                                }, "data connection closed");
-                            Curry._1(setConnections, (function (prev) {
-                                    return Belt_List.keep(prev, (function (item) {
-                                                  return item.peer !== peerConnection.peer;
-                                                }));
-                                  }));
-                          }));
-                    peerConnection.on("error", (function (error) {
-                            Browser$ReScriptLogger.error1({
-                                  rootModule: "Hooks",
-                                  subModulePath: /* [] */0,
-                                  value: "usePeer",
-                                  fullPath: "Hooks.usePeer"
-                                }, "data connection error", [
-                                  "error",
-                                  error
-                                ]);
-                          }));
-                  }));
+          if (localPeerId !== undefined && remoteHostId !== undefined) {
+            try {
+              var peerConnection = peer.current.connect(remoteHostId, undefined);
+              peerConnection.on("open", (function (param) {
+                      Browser$ReScriptLogger.debug({
+                            rootModule: "Hooks",
+                            subModulePath: /* [] */0,
+                            value: "usePeer",
+                            fullPath: "Hooks.usePeer"
+                          }, "data connection open");
+                      Curry._1(setConnections, (function (prev) {
+                              return {
+                                      hd: peerConnection,
+                                      tl: prev
+                                    };
+                            }));
+                      peerConnection.on("data", handlePeerData);
+                      peerConnection.on("close", (function (param) {
+                              Browser$ReScriptLogger.debug({
+                                    rootModule: "Hooks",
+                                    subModulePath: /* [] */0,
+                                    value: "usePeer",
+                                    fullPath: "Hooks.usePeer"
+                                  }, "data connection closed");
+                              Curry._1(setConnections, (function (prev) {
+                                      return Belt_List.keep(prev, (function (item) {
+                                                    return item.peer !== peerConnection.peer;
+                                                  }));
+                                    }));
+                            }));
+                      peerConnection.on("error", (function (error) {
+                              Browser$ReScriptLogger.error1({
+                                    rootModule: "Hooks",
+                                    subModulePath: /* [] */0,
+                                    value: "usePeer",
+                                    fullPath: "Hooks.usePeer"
+                                  }, "data connection error", [
+                                    "error",
+                                    error
+                                  ]);
+                            }));
+                    }));
+            }
+            catch (exn){
+              Browser$ReScriptLogger.error({
+                    rootModule: "Hooks",
+                    subModulePath: /* [] */0,
+                    value: "usePeer",
+                    fullPath: "Hooks.usePeer"
+                  }, "Failed to connect to peer");
+              Curry._1(setErrorMessage, "Failed to connect to peer");
+            }
           }
           
         }), [
         remoteHostId,
-        handlePeerData
+        handlePeerData,
+        localPeerId
       ]);
   React.useEffect((function () {
           return (function (param) {
@@ -467,7 +506,7 @@ function usePeer(remoteHostId) {
         }), []);
   return [
           peer.current,
-          match[0],
+          localPeerId,
           connections
         ];
 }
