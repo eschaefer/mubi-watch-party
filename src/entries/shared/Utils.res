@@ -15,3 +15,9 @@ let getVideoEl = () => {
 let getNestedControlEl = () => {
   document->Document.querySelector("div[title='Enter full screen']")
 }
+
+let getPartyId = () => {
+  let url = getPageUrl()
+  let urlWithPartyParam = Js.String2.split(url, "?party=")
+  urlWithPartyParam->Belt.Array.get(1)
+}

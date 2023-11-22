@@ -55,9 +55,7 @@ module Trigger = {
 
     React.useEffect1(() => {
       // For links shared with a party ID, set the ID as the remote host ID
-      let url = Utils.getPageUrl()
-      let urlWithPartyParam = Js.String2.split(url, "?party=")
-      let id = urlWithPartyParam->Belt.Array.get(1)
+      let id = Utils.getPartyId()
 
       %log.debug(
         "Params check"

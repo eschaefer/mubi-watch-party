@@ -177,6 +177,7 @@ function usePeer(remoteHostId, setErrorMessage) {
         
       });
   var setCurrentFilm = match$2[1];
+  var firstIncomingDataFromHostRef = React.useRef(false);
   var handlePeerData = React.useCallback((function (data) {
           var v = Utils.getVideoEl(undefined);
           if (v !== undefined) {
@@ -255,6 +256,23 @@ function usePeer(remoteHostId, setErrorMessage) {
                 }, "None");
             return Pervasives.failwith("Video element went missing");
           }
+        }), []);
+  var handleFirstDataFromRemote = React.useCallback((function (data) {
+          var match = firstIncomingDataFromHostRef.current;
+          if (match) {
+            return ;
+          }
+          if (data.TAG !== /* TimeUpdate */3) {
+            return ;
+          }
+          firstIncomingDataFromHostRef.current = true;
+          var el = Utils.getVideoEl(undefined);
+          if (el === undefined) {
+            return Pervasives.failwith("Can't sync time without video element");
+          }
+          var el$1 = Caml_option.valFromOption(el);
+          el$1.currentTime = data._0;
+          el$1.play();
         }), []);
   var emitToPeers = React.useCallback((function (action) {
           switch (action.TAG | 0) {
@@ -371,12 +389,14 @@ function usePeer(remoteHostId, setErrorMessage) {
                   _0: currentTime
                 });
           };
-          Throttle.make(2000, handleTimeUpdate);
+          var throttledHandleTimeUpdate = Throttle.make(2000, handleTimeUpdate);
           videoEl.addEventListener("play", handlePlay);
           videoEl.addEventListener("pause", handlePause);
+          videoEl.addEventListener("timeupdate", throttledHandleTimeUpdate);
           return (function (param) {
                     videoEl.removeEventListener("play", handlePlay);
                     videoEl.removeEventListener("pause", handlePause);
+                    videoEl.removeEventListener("timeupdate", throttledHandleTimeUpdate);
                   });
         }), [emitToPeers]);
   React.useEffect((function () {
@@ -402,6 +422,7 @@ function usePeer(remoteHostId, setErrorMessage) {
                                         fullPath: "Hooks.usePeer"
                                       }, "Data connection open");
                                   connection.on("data", handlePeerData);
+                                  connection.on("data", handleFirstDataFromRemote);
                                   Curry._1(setConnections, (function (prev) {
                                           return {
                                                   hd: connection,
@@ -435,7 +456,10 @@ function usePeer(remoteHostId, setErrorMessage) {
                                 }));
                         }));
                 }));
-        }), [handlePeerData]);
+        }), [
+        handlePeerData,
+        handleFirstDataFromRemote
+      ]);
   React.useEffect((function () {
           if (localPeerId !== undefined && remoteHostId !== undefined) {
             try {

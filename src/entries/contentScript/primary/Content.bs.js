@@ -8,7 +8,6 @@ import * as React from "react";
 import * as Header from "../../shared/components/Header.bs.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as GroupIcon from "../../shared/components/GroupIcon.bs.js";
-import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import ElementVisible from "element-visible";
 import * as Js_null_undefined from "rescript/lib/es6/js_null_undefined.js";
@@ -69,9 +68,7 @@ function Content$Trigger(Props) {
           
         }), [localPeerId]);
   React.useEffect((function () {
-          var url = Utils.getPageUrl(undefined);
-          var urlWithPartyParam = url.split("?party=");
-          var id = Belt_Array.get(urlWithPartyParam, 1);
+          var id = Utils.getPartyId(undefined);
           Browser$ReScriptLogger.debug1({
                 rootModule: "Content",
                 subModulePath: {
