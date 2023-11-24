@@ -10,7 +10,7 @@ A web extension (Chrome + Firefox) to sync [Mubi](https://mubi.com) movies with 
 
 **Chrome**
 
-Chrome Web Store _(coming very soon)_
+[Chrome Web Store](https://chromewebstore.google.com/detail/mubi-watch-party/ppkgfbmgcmncempheigcckaoconkcncd)
 
 ### Requirements for development
 
